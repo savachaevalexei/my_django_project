@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        height: "600px",
+        width: "100%",
+        
+        plugins: "advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code codesample fullscreen insertdatetime media table paste code help wordcount spellchecker",
+        language: "ru_RU",
+    });
+</script>
+  
+<form method="post" enctype="multipart/form-data">
+    
+    {% csrf_token %}
+
+    <div class="#">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <label class="#" for="{{ f.id_for_label }}">{{f.label}}:<br> </label>{{ f }}<br>
+    <div class="#">{{ f.errors }}</div>
+    {% endfor %}
+<br>
+    <p><button type="submit" class="submit_button">отправить</button></p>
+
+</form>
+
+{% endblock %}
+
+

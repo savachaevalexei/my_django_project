@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+<h1>Авторизация</h1><br>
+ 
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="#">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <label class="#" for="{{ f.id_for_label }}">{{f.label}}:<br> </label>{{ f }}</p>
+    <div class="#">{{ f.errors }}</div>
+    
+    {% endfor %}
+    
+     <p ><a href="{% url 'users:password_reset' %}">Забыли пароль?</a></p><br>
+    
+    <p ><button type="submit" class="submit_button">Войти</button></p><br>
+
+    Нет аккаунта? <a href="{% url 'users:register' %}"><b>Зарегистрироваться!</b></a>
+</form>
+ 
+{% endblock %}

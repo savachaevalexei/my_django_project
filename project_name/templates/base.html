@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+{% block meta %}{% endblock%}
+<link rel="stylesheet" href="{% static 'articles/css/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+<link type="text/css" href="{% static 'articles/css/style.css' %}" rel="stylesheet" />
+<link type="text/css" href="{% static 'articles/css/prism.css' %}" rel="stylesheet" />
+<title>{{ title }}</title>
+
+<script src="{% static 'articles/js/prism.js' %}"></script>
+<script src="{% static 'articles/js/tinymce/tinymce.min.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  {% comment %} Обновление данных из бд {% endcomment %}
+  function updateData() {
+      $.ajax({
+          url: "",
+          type: "GET",
+          success: function (data) {
+              $("#data").html(data);
+          },
+          error: function () {
+              alert("Ошибка обновления данных");
+          }
+      });
+  }
+
+
+{% comment %} Добавление комментария{% endcomment %}
+
+    $(document).ready(function(){
+        $('#contact_form').submit(function(e){
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "",
+                data: $('#contact_form').serialize(),
+                success: function(data){
+                    updateData()
+                }
+            });
+        });
+    });
+
+  {% comment %} Удаление комментария {% endcomment %}
+  $(document).ready(function(){
+    $('a#del_comment').click(function(e){
+        e.preventDefault();
+        var commentId = $(this).attr('data-comment-id');
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'delete_comment'  %}",
+            data: {
+                'comment_id': commentId,
+              },
+            success: function(data){
+                updateData()
+            }
+        });
+    });
+}); 
+
+
+  {% comment %} Добавление закладки {% endcomment %}
+  $(document).ready(function(){
+      $('a#add_bm').click(function(e){
+          e.preventDefault();
+          var articleId = $(this).attr('data-article-id');
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'add_bookmark' %}",
+              data: {
+                  'article_id': articleId,
+                },
+              success: function(data){
+                  updateData()
+              }
+          });
+      });
+  }); 
+
+
+  {% comment %} Удаление закладки {% endcomment %}
+  $(document).ready(function(){
+      $('a#del_bm').click(function(e){
+          e.preventDefault();
+          var articleId = $(this).attr('data-article-id');
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'delete_bookmark'  %}",
+              data: {
+                  'article_id': articleId,
+                },
+              success: function(data){
+                  updateData()
+              }
+          });
+      });
+  }); 
+
+
+  {% comment %} Добавление лайка {% endcomment %}
+  $(document).ready(function(){
+      $('a#add_like').click(function(e){
+          e.preventDefault();
+          var articleId = $(this).attr('data-article-id');
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'add_like' %}",
+              data: {
+                  'article_id': articleId,
+                  },
+              success: function(data){
+                  updateData()
+              }
+          });
+      });
+  });
+
+
+  {% comment %} Удаление лайка {% endcomment %}
+  $(document).ready(function(){
+      $('a#del_like').click(function(e){
+          e.preventDefault();
+          var articleId = $(this).attr('data-article-id');
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'delete_like' %}",
+              data: {
+                  'article_id': articleId,
+                  },
+              success: function(data){
+                  updateData()
+              }
+          });
+      });
+  });
+
+
+    {% comment %} Подписаться на категорию {% endcomment %}
+    $(document).ready(function(){
+      $('a#sub_cat').click(function(e){
+          e.preventDefault();
+          var catId = $(this).attr('data-cat-id');
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'sub_category' %}",
+              data: {
+                  'cat_id': catId,
+                  },
+              success: function(data){
+                  updateData()
+              }
+          });
+      });
+  });
+
+
+  {% comment %} Отписаться от категории {% endcomment %}
+  $(document).ready(function(){
+      $('a#unsub_cat').click(function(e){
+          e.preventDefault();
+          var catId = $(this).attr('data-cat-id');
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'unsub_category' %}",
+              data: {
+                  'cat_id': catId,
+                  },
+              success: function(data){
+                  updateData()
+              }
+          });
+      });
+  });
+</script> 
+
+</head>
+
+
+<body id="data">
+
+<div class="holy-grail-grid">
+ 
+{% comment %} HEADER {% endcomment %}
+<header class="header">
+ 
+  <div class="user_block">
+    <div class="user_name">
+    {% comment %}  Если пользователь авторизован, показываем кнопку "Выйти" {% endcomment %}
+    {% if user.is_authenticated %}
+      {{user.username}}
+      
+      {% comment %} Если пользователь НЕ АВТОРИЗОВАН, показываем кнопки "Войти" и "Регистрация" {% endcomment %}
+    {% else %}
+      <a href="{% url 'users:login' %}">Войти</a><br>
+      <a href="{% url 'users:register' %}">Регистрация</a>
+    {% endif %}
+    </div>
+      
+
+  
+    <div class="user_photo">
+
+
+        <div class="dropdown">
+            <button class="dropbtn">
+                {% if user.photo %}
+                <p><img src="{{ user.photo.url }}">
+                {% else %}
+                <p><img src="{{ default_image }}">
+              {% endif %}
+
+            </button>
+            
+            {% if user.is_authenticated %}
+            <div class="dropdown-content">
+                <a href="{% url 'users:profile' %}">Профиль</a>
+                <a href="{% url 'users:edit_profile' %}">Настройки</a>
+                <a href="{% url 'users:logout' %}">Выйти</a>
+            </div>
+            {% endif %}
+
+        </div>
+
+    
+
+    </div>
+    </div>
+{% comment %} ФОРМА ПОИСКА {% endcomment %}
+    <form action="{% url 'search_results' %}" method="get">
+        <input class="search_input" name="q" type="text" placeholder="Поиск...">
+    </form>
+</header>
+{% comment %} END HEADER {% endcomment %}
+
+
+
+{% comment %} MAIN CONTENT{% endcomment %}
+<main class="main-content">
+  {% comment %} Вывод основного контента {% endcomment %}  
+  {% block content %} {% endblock %}<br>
+
+  {% comment %} Вывод пагинации {% endcomment %}
+  {% block navigation %} {% endblock %}
+</main>
+{% comment %} END MAIN CONTENT{% endcomment %}
+
+
+{% comment %} LEFT SIDEBAR {% endcomment %}
+<section class="left-sidebar">
+  <div class="menu">
+  {% for m in main_menu %}
+  {% url m.url_name as urlname %}
+  {% if urlname == request.path %}
+  <p><a href="{% url m.url_name %}"><i class="{{ m.class }}" aria-hidden="true"></i>&nbsp; {{m.title}}</a></p>
+  {% else %}
+  <p><a href="{% url m.url_name %}"><i class="{{ m.class }}" aria-hidden="true"></i>&nbsp; {{m.title}}</a></p>
+  {% endif %}
+  {% endfor %}
+  </div>
+</section>
+{% comment %} END LEFT SIDEBAR {% endcomment %}
+
+
+{% comment %} RIGHT SIDEBAR {% endcomment %}
+<aside class="right-sidebar">
+  <div class="last_comments" style="background-color: #002020; height: 300px; border-radius: 15px; padding: 10px; margin-bottom: 15px;"></div>
+  <div class="last_comments" style="background-color: #002020; height: 300px; border-radius: 15px; padding: 10px; margin-bottom: 15px"></div>
+  <div class="last_comments" style="background-color: #002020; height: 300px; border-radius: 15px; padding: 10px; margin-bottom: 15px"></div>
+</aside>
+{% comment %} END RIGHT SIDEBAR {% endcomment %}
+
+
+{% comment %} FOOTER {% endcomment %}
+<footer class="footer">
+</footer>
+{% comment %} END FOOTER {% endcomment %}
+
+
+</div>
+
+</body>
+</html>

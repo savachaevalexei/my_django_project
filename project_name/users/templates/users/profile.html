@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+
+{% for p in profile_data %}
+
+
+<div class="profile_header">
+{% if p.photo %}
+    <img src="{{p.photo.url}}" class="profile_photo">
+{% else %}
+    <img src="{{ default_image }}" class="profile_photo"> 
+{% endif %}
+
+
+<h1>{{ p.first_name }} {{ p.last_name }}</h1>
+{{ p.specialization }}<br>
+{{ p.country_of_residence }}, {{ p.city_of_residence }}<br>
+
+<br><i class="fa fa-globe fa-lg" aria-hidden="true"> Сайт: <a href="{{ p.website }}" target="_blank">{{ p.website }}</a></i><br>
+<br><i class="fa fa-github-square fa-lg" aria-hidden="true"> GitHub: <a href="https://github.com/{{ p.github }}" target="_blank">{{ p.github }}</a></i><br>
+
+</div>
+
+
+
+<div class="portfile_base_info">
+
+<br><b>Статус:</b> {{ p.employment_status }}<br>
+
+{% if p.employment_status == 'Трудоестроен' %}
+    <br><b>Место работы:</b> {{ p.place_of_work}}<br>
+{% endif %}
+
+{% if p.education %}
+    <br><b>Образование:</b> {{ p.education }}<br>
+{% endif %}
+
+{% if p.courses %}
+    <br><b>Пройденные курсы:</b> {% autoescape off %}{{ p.courses }}{% endautoescape %}<br>
+{% endif %}
+
+{% if p.publications %}
+    <br><b>Публикации:</b> {% autoescape off %}{{ p.publications }}{% endautoescape %}<br>
+{% endif %}
+
+{% if p.foreign_languages %}
+    <br><b>Иностранные языки:</b> {% autoescape off %}
+    {% for fl in foreign_languages%}
+    {{fl.language}}
+    {% endfor %}
+    {% endautoescape %}<br>
+{% endif %}
+
+{% if p.skills %}
+    <br><b>Навыки:</b> {% autoescape off %}{{ p.skills }}{% endautoescape %}<br>
+{% endif %}
+
+{% if p.work_experience %}
+    <br><b>Опыт работы:</b> {% autoescape off %}{{ p.work_experience }}{% endautoescape %}<br>
+{% endif %}
+
+{% if p.about_me %}
+    <br><b>О себе:</b> {% autoescape off %}{{ p.about_me }}{% endautoescape %}<br>
+{% endif %}
+
+{% if p.hobby %}
+    <br><b>Хобби:</b> {% autoescape off %}{{ p.hobby }}{% endautoescape %}<br>
+{% endif %}
+
+</div>
+
+
+
+{% endfor %}
+{% endblock %}

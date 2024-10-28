@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<meta name="description" content="{{post.meta_description}}">
+<meta name="Keywords" content="{{post.meta_keywords}}">
+{% endblock%}
+
+
+{% block content %}
+<div class="article">
+    
+    {% comment %} Автор, аватар автора, дата публикации {% endcomment %}
+    <div class="article_header">
+    {% include 'articles/includes/article_header.html' %}<br>
+    </div>
+
+    <div class="article_body">
+
+        {% comment %} Название статьи, название категории, сложность, время на чтение {% endcomment %}
+        <div class="article_title">
+            {% include 'articles/includes/article_title.html' %}
+        </div>
+
+        {% comment %} Полное содержание статьи {% endcomment %}
+        <div class="article_description">
+            {% autoescape off %}{{ post.content }}{% endautoescape %}
+        </div>
+
+    </div>
+    <br>
+    {% comment %} Лайки, избранное, комменты, репосты {% endcomment %}
+    <div class="full_article_footer">
+        {% include 'articles/includes/article_footer.html' %}
+    </div>
+
+
+    {% comment %} Выводим категорию статьи {% endcomment %}<br>
+    <p><b>Категория: </b><a class="tag_a" href="{{ post.cat.get_absolute_url }}">{{post.cat.name}}</a></p><br>
+
+    {% comment %} Выводим тэги, связанные со статьей {% endcomment %}
+    {% with post.tags.all as tags %}
+    {% if tags %}
+    <b>Тэги: </b>
+    {% for t in tags %}
+    <a class="tag_a" href="{{t.get_absolute_url}}">#{{t.tag}}</a>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    
+<br><br><h1>Комментарии:</h1>
+
+<form method="post" id="contact_form">
+    {% csrf_token %}
+
+    <div class="#">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <label class="#" for="{{ f.id_for_label }}"></label>{{ f }}
+    <div class="#">{{ f.errors }}</div>
+    {% endfor %}
+
+<br>
+    <p><button type="submit" class="submit_button">отправить</button></p>
+
+</form>
+<br>
+
+
+{% for c in post.comments_set.all %}
+
+{% if c.parent_id == 0 %}
+  
+<div class="comment">
+
+    {% if user.username == c.author %}
+        <a href="{% url 'users:profile' %}">
+            {% else %}
+            <a href="{% url 'users:view_profile' c.author.id %}">
+    {% endif %}
+
+    {% if c.author.photo %}
+        <img class = "comment_author_photo" src="{{ c.author.photo.url }}">
+        {% else %}
+        <img class = "comment_author_photo" src="{{ default_image }}"> 
+    {% endif %}
+    {{ c.author }} 
+            </a>
+    <div class="article_date">  
+        {{ c.time_create|date:"d. m. Y H.i"}}
+    </div>
+    <br><br>
+    {{ c.comment }}<br><br>
+
+
+</div>
+
+
+
+{% comment %} При нажатии на кнопку ответить вставляем текст в textarea и переносим туда фокус {% endcomment %}
+<script>
+    
+    function answer_{{c.id}}() {
+        var author =  "{{ c.author }}" ;
+        var textarea = document.getElementById("id_comment"); // Получаем textarea по его ID
+        textarea.value = author + ", "; // Вставляем текст в textarea
+        textarea.focus();
+        var parent_id = "{{c.id}}"
+        $('#id_parent_id').val(parent_id);
+    }
+
+
+
+</script>
+
+{% if user.is_authenticated %}
+{% if user.username == c.author.username %}
+<a href="javascript:void(0);" onclick="answer_{{c.id}}()">Ответить</a> | 
+<a id="del_comment" data-comment-id="{{ c.id }}" href="">Удалить</a> 
+<br><br>
+{% else %}
+<a href="javascript:void(0);" onclick="answer_{{c.id}}()">Ответить</a> <br><br> 
+{% endif %}
+{% endif %}
+
+{%endif%}
+
+
+
+{% for d in post.comments_set.all %}
+    
+    {% if c.id == d.parent_id%}
+    
+    <div class="child_comment">
+
+        {% if user.username == d.author %}
+            <a href="{% url 'users:profile' %}">
+                {% else %}
+                <a href="{% url 'users:view_profile' d.author.id %}">
+        {% endif %}
+        
+    
+        {% if d.author.photo %}
+            <img class = "comment_author_photo" src="{{ d.author.photo.url }}">
+            {% else %}
+            <img class = "comment_author_photo" src="{{ default_image }}"> 
+        {% endif %}
+        {{ d.author }} 
+                </a>
+        <div class="article_date">  
+            {{ d.time_create|date:"d. m. Y H.i"}}
+        </div>
+        <br><br>
+        
+        {{ d.comment|safe }}<br><br>
+        
+
+
+
+    </div>
+
+   <div class="children_comment_toolbar">
+  
+    {% if user.is_authenticated %}
+    {% if user.username == d.author.username %}
+    <a href="javascript:void(0);" onclick="answer_{{d.id}}()">Ответить</a> | 
+    <a id="del_comment" data-comment-id="{{ d.id }}" href="">Удалить</a><br><br>
+    {% else %}
+    <a href="javascript:void(0);" onclick="answer_{{d.id}}()">Ответить</a> <br><br> 
+    {% endif %}
+    {% endif %}
+
+    </div> 
+    
+    
+{% comment %} При нажатии на кнопку ответить вставляем текст в textarea и переносим туда фокус {% endcomment %}
+<script>
+    function answer_{{d.id}}() {
+        var author =  "{{ d.author }}";
+        var comment = "{{ d.comment|safe  }}";
+        var textarea = document.getElementById("id_comment"); // Получаем textarea по его ID
+        textarea.value = author + ", "; // Вставляем текст в textarea
+        textarea.focus();
+        var parent_id = "{{d.id}}"
+        $('#id_parent_id').val(parent_id);
+    }
+</script>
+
+    {%endif%}
+
+
+{%endfor%}
+
+{% endfor %}
+
+</div>
+
+
+{% endblock %}

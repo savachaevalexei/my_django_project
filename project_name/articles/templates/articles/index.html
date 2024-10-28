@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% comment %} БЛОК ВЫВОДА СТАТЕЙ {% endcomment %}
+{% for post in posts %}
+
+{% if forloop.first %}
+    {% comment %} Если текущий адрес совпадает с запросом на вывод статьи по категории,
+    то показываем краткое описание категории {% endcomment %}
+    {% if request.path_info == post.cat.get_absolute_url %}
+    <div class="article">
+        <div class="article_description">
+            <div class="sub_link" >
+        {% if user.is_authenticated %}
+        {% if post.cat.id in sub_categories %}
+        <a id="unsub_cat" href="" class="fa fa-minus fa-2x" data-cat-id="{{post.cat.id}}" aria-hidden="true"></a>
+        {%else%}
+        <a id="sub_cat" href="" class="fa fa-plus fa-2x" data-cat-id="{{post.cat.id}}" aria-hidden="true"></a>
+        {%endif%}
+        {% else %}
+        <a href="{% url 'users:login' %}" class="fa fa-plus fa-2x" aria-hidden="true">&nbsp;&nbsp;</a>
+        {% endif %}   
+            </div>
+
+        <h1>{{ post.cat.name }}</h1> <br>    
+
+        {{ post.cat.description }} <br>
+        
+        
+
+        </div>
+    </div>
+    {% endif %}
+{% endif %}
+
+{% if post.is_published %}
+
+<div class="article">
+
+    {% comment %} Автор, аватар автора, дата публикации {% endcomment %}
+    <div class="article_header">
+        {% include 'articles/includes/article_header.html' %}<br>
+    </div>
+
+    <div class="article_body">
+        
+        {% comment %} Название статьи, название категории, сложность, время на чтение {% endcomment %}
+        <div class="article_title">
+            {% include 'articles/includes/article_title.html' %}
+        </div>
+
+        {% comment %} Краткое описание статьи {% endcomment %}
+        <div class="article_description">
+            {% autoescape off %}{{ post.description|truncatechars:1000 }}{% endautoescape %}
+        </div><br>
+
+        {% comment %} Изображение статьи {% endcomment %}
+        {% if post.prewiew_img %}
+            <p><img class="article_img" src="{{post.prewiew_img.url}}"></p>
+        {% else %}
+            <p><img class="article_img" src="{% static 'articles/images/no-photo.png' %}"></p>
+        {% endif %}
+        
+    </div><br>
+
+    {% comment %} Лайки, избранное, комменты, репосты {% endcomment %}
+    <div class="article_footer">
+        {% include 'articles/includes/article_footer.html' %}
+    </div>
+
+</div>
+{% endif %}
+{% endfor %}
+ 
+
+
+{% endblock %}
+{% comment %} END БЛОК ВЫВОДА СТАТЕЙ {% endcomment %}
+
+
+{% comment %} БЛОК ПАГИНАЦИИ {% endcomment %}
+{% block navigation %}
+<div class="pagination">
+{% comment %} Если есть две и более страницы выводим навигацию по страницам. {% endcomment %}
+{% comment %} Если страница одна, то навигация по страницам не показывается. {% endcomment %}
+{% if page_obj.has_other_pages %}
+
+{% comment %} Стрелочка для перехода (если есть) на предыдущую страницу {% endcomment %}
+{% if page_obj.has_previous %}
+
+<h2><a href="?page={{ page_obj.previous_page_number }}"class="fa fa-angle-left fa-lg"></a></h2>
+{% endif %}
+
+{% comment %} Выводим список страниц для навигации {% endcomment %}
+{% for p in page_obj.paginator.page_range %}
+
+{% comment %} Показываем номер текущей страницы в виде текста {% endcomment %}
+{% if page_obj.number == p %}
+
+<h1>{{ p }}</h1>
+
+{% comment %} Показываем номера других страниц в виде ссылок {% endcomment %}
+{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+
+<h2><a href="?page={{ p }}">{{ p }}</a></h2>
+
+{% endif %}
+{% endfor %}
+
+{% comment %} Стрелочка для перехода (если есть) на следующую страницу {% endcomment %}
+{% if page_obj.has_next %}
+
+<h2><a href="?page={{ page_obj.next_page_number }}" class="fa fa-angle-right fa-lg"></a></h2>
+
+{% endif %}
+
+
+{% endif %}
+</div>
+
+{% endblock %}
+{% comment %} END БЛОК ПАГИНАЦИИ {% endcomment %}
+

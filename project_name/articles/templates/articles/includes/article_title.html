@@ -1,0 +1,15 @@
+{% comment %} Название статьи {% endcomment %}<br>
+<a href="{{ post.get_absolute_url }}"><h1>{{ post.title }}</h1></a>
+
+{% comment %} Название категории {% endcomment %}
+<a href="{{ post.cat.get_absolute_url }}"><h4>{{post.cat.name}}</h4></a><br>
+
+<div class="full_article_footer">
+
+    {% comment %} Сложность {% endcomment %}
+    <i class="fa fa-graduation-cap " aria-hidden="true"></i>&nbsp;{{post.difficulty}}&nbsp;
+
+    {% comment %} Время на чтение {% endcomment %}
+    <i class="fa fa-hourglass-end" aria-hidden="true"></i>&nbsp;{{post.time_to_read}} мин.
+    
+</div>

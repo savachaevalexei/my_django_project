@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="article">
+    <h1>Категории статей</h1> <br>
+
+
+{% for cat in categories %}
+
+
+<div class="cat_block">
+
+<a href="{{cat.get_absolute_url}}"><h1>{{ cat.name }}</h1></a><br>
+
+
+
+{% if user.is_authenticated %}
+{% if cat.id in sub_categories %}
+<a id="unsub_cat" href="" class="fa fa-minus fa-2x" data-cat-id="{{cat.id}}" aria-hidden="true"></a>
+{%else%}
+<a id="sub_cat" href="" class="fa fa-plus fa-2x" data-cat-id="{{cat.id}}" aria-hidden="true"></a>
+{%endif%}
+{% else %}
+<a href="{% url 'users:login' %}" class="fa fa-plus fa-2x" aria-hidden="true">&nbsp;&nbsp;{{ post.get_like_count }}</a>
+{% endif %}
+
+
+
+
+</div>
+
+
+
+{% endfor %}
+</div>
+{% endblock %}
+

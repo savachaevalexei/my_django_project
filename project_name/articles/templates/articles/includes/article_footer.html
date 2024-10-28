@@ -1,0 +1,35 @@
+{% comment %} ЛАЙКИ {% endcomment %}
+{% if user.is_authenticated %}
+{% if post.id in like_list %}
+<a id="del_like" href="" class="fa fa-thumbs-up fa-fw" data-article-id="{{ post.id }}" aria-hidden="true">&nbsp;&nbsp;{{ post.get_like_count }}</a>
+{%else%}
+<a id="add_like" href="" class="fa fa-thumbs-o-up fa-fw" data-article-id="{{ post.id }}" aria-hidden="true">&nbsp;&nbsp;{{ post.get_like_count }}</a>
+{%endif%}
+{% else %}
+<a href="{% url 'users:login' %}" class="fa fa-thumbs-o-up fa-fw" aria-hidden="true">&nbsp;&nbsp;{{ post.get_like_count }}</a>
+{% endif %}
+
+
+{% comment %} ИЗБРАННОЕ {% endcomment %}
+{% comment %} Если статья с post.id есть в закладках у текущего пользователя {% endcomment %}
+{% if user.is_authenticated %}
+{% if post.id in bookmark_list %}
+<a id="del_bm" href="" class="fa fa-bookmark fa-fw" data-article-id="{{ post.id }}" aria-hidden="true">&nbsp;&nbsp;{{ post.get_bookmark_count }}</a>
+{%else%}
+<a id="add_bm" href="" class="fa fa-bookmark-o fa-fw" data-article-id="{{ post.id }}" aria-hidden="true">&nbsp;&nbsp;{{ post.get_bookmark_count }}</a>
+{%endif%}
+{% else %}
+<a href="{% url 'users:login' %}" class="fa fa-bookmark-o fa-fw" aria-hidden="true">&nbsp;&nbsp;{{ post.get_bookmark_count }}</a>
+{% endif %}
+
+{% comment %} КОММЕНТАРИИ {% endcomment %}
+{% if post.id in comments %}
+<a href=""><i class="fa fa-comments fa-fw" aria-hidden="true"></i>&nbsp;{{ post.comments_set.all|length  }}</a>
+{% else %}
+<a href=""><i class="fa fa-comments fa-fw" aria-hidden="true"></i>&nbsp;0</a>
+{% endif %}
+
+{% comment %} РЕПОСТЫ {% endcomment %}
+{% comment %} <a href="#"><i class="fa fa-share fa-fw" aria-hidden="true"></i>&nbsp;123</a> {% endcomment %}
+
+

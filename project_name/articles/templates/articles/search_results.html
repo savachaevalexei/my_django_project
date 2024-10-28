@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Результаты поиска:</h1><br>
+ 
+<ul>
+{% if object_list%}
+{% for res in object_list %}
+<div class="article">
+
+    {% comment %} Автор, аватар автора, дата публикации {% endcomment %}
+    <div class="article_header">
+        <div class="article_author">
+
+            {% if user.username == res.author.username %}
+                <a href="{% url 'users:profile' %}">
+                    {% else %}
+                    <a href="{% url 'users:view_profile' res.author.id %}">
+            {% endif %}
+            
+                {% if res.author.photo %}
+                <img src="{{ res.author.photo.url }}">
+                {% else %}
+                <img src="{{ default_image }}"> 
+                {% endif %}
+                {{ res.author }}
+            </a>
+        </div>
+        
+        {% comment %} Дата публикации {% endcomment %}
+        <div class="article_date">  
+        <i class="fa fa-calendar fa-fw" aria-hidden="true"></i>&nbsp;
+            {% comment %} Если дата публикации совпадает с текущей датой, выводим время в формате Ч:М {% endcomment %}
+            {% if today_date|date:"d. m. Y" ==  res.time_create|date:"d. m. Y"%}
+                Сегодня в {{res.time_create|date:"G:i"}}
+            {% comment %} Если дата публикации не совпадает с текущей, то показываем дату в формате Д:М:Г {% endcomment %}
+            {% else %}
+            {{res.time_create|date:"d. m. Y"}}
+            {% endif %}
+        </div>
+<br>        
+    </div>
+
+    <div class="article_body">
+        
+        {% comment %} Название статьи, название категории, сложность, время на чтение {% endcomment %}
+        <div class="article_title">
+            {% comment %} Название статьи {% endcomment %}<br>
+<a href="{{ res.get_absolute_url }}"><h1>{{ res.title }}</h1></a>
+
+{% comment %} Название категории {% endcomment %}
+<h6><a href="{{ res.cat.get_absolute_url }}">{{res.cat.name}}</a></h6><br>
+
+<div class="full_article_footer">
+
+    {% comment %} Сложность {% endcomment %}
+    <a href="#"><i class="fa fa-graduation-cap " aria-hidden="true"></i>&nbsp;{{res.difficulty}}</a>
+
+    {% comment %} Время на чтение {% endcomment %}
+    <a href="#"><i class="fa fa-hourglass-end" aria-hidden="true"></i>&nbsp;{{res.time_to_read}} мин.</a>
+    
+</div>
+        </div>
+
+        {% comment %} Краткое описание статьи {% endcomment %}
+        <div class="article_description">
+            {% autoescape off %}{{ res.description|truncatechars:1000 }}{% endautoescape %}
+        </div><br>
+
+        {% comment %} Изображение статьи {% endcomment %}
+        {% if res.prewiew_img %}
+            <p><img class="article_img" src="{{res.prewiew_img.url}}"></p>
+        {% else %}
+            <p><img class="article_img" src="{% static 'articles/images/no-photo.png' %}"></p>
+        {% endif %}
+        
+    </div><br>
+
+    {% comment %} Лайки, избранное, комменты, репосты {% endcomment %}
+    <div class="article_footer">
+        {% comment %} ЛАЙКИ {% endcomment %}
+{% if user.is_authenticated %}
+{% if res.id in like_list %}
+<a id="del_like" href="" class="fa fa-thumbs-up fa-fw" data-article-id="{{ res.id }}" aria-hidden="true">&nbsp;&nbsp;{{ res.get_like_count }}</a>
+{%else%}
+<a id="add_like" href="" class="fa fa-thumbs-o-up fa-fw" data-article-id="{{ res.id }}" aria-hidden="true">&nbsp;&nbsp;{{ res.get_like_count }}</a>
+{%endif%}
+{% else %}
+<a href="{% url 'users:login' %}" class="fa fa-thumbs-o-up fa-fw" aria-hidden="true">&nbsp;&nbsp;{{ res.get_like_count }}</a>
+{% endif %}
+
+
+{% comment %} ИЗБРАННОЕ {% endcomment %}
+{% comment %} Если статья с res.id есть в закладках у текущего пользователя {% endcomment %}
+{% if user.is_authenticated %}
+{% if res.id in bookmark_list %}
+<a id="del_bm" href="" class="fa fa-bookmark fa-fw" data-article-id="{{ res.id }}" aria-hidden="true">&nbsp;&nbsp;{{ res.get_bookmark_count }}</a>
+{%else%}
+<a id="add_bm" href="" class="fa fa-bookmark-o fa-fw" data-article-id="{{ res.id }}" aria-hidden="true">&nbsp;&nbsp;{{ res.get_bookmark_count }}</a>
+{%endif%}
+{% else %}
+<a href="{% url 'users:login' %}" class="fa fa-bookmark-o fa-fw" aria-hidden="true">&nbsp;&nbsp;{{ res.get_bookmark_count }}</a>
+{% endif %}
+    </div>
+
+</div>
+{% endfor %}
+</ul>
+{%else%}
+К сожалению, по Вашему запросу ничего не найдено
+{%endif%}
+
+{% endblock %}

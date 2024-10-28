@@ -1,0 +1,30 @@
+{% comment %} Аватар и имя автора статьи {% endcomment %}
+<div class="article_author">
+
+    {% if user.username == post.author.username %}
+        <a href="{% url 'users:profile' %}">
+            {% else %}
+            <a href="{% url 'users:view_profile' post.author.id %}">
+    {% endif %}
+    
+        {% if post.author.photo %}
+        <img src="{{ post.author.photo.url }}">
+        {% else %}
+        <img src="{{ default_image }}"> 
+        {% endif %}
+        {{ post.author }}
+    </a>
+</div>
+
+{% comment %} Дата публикации {% endcomment %}
+<div class="article_date">  
+<i class="fa fa-calendar fa-fw" aria-hidden="true"></i>&nbsp;
+    {% comment %} Если дата публикации совпадает с текущей датой, выводим время в формате Ч:М {% endcomment %}
+    {% if today_date|date:"d. m. Y" ==  post.time_create|date:"d. m. Y"%}
+        Сегодня в {{post.time_create|date:"G:i"}}
+    {% comment %} Если дата публикации не совпадает с текущей, то показываем дату в формате Д:М:Г {% endcomment %}
+    {% else %}
+    {{post.time_create|date:"d. m. Y"}}
+    {% endif %}
+</div>
+

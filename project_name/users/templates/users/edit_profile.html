@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        plugins: 'link',
+        height: "300px",
+        width: "100%",
+        language: "ru_RU",
+    });
+</script>
+
+<h1>Редактироавание профиля</h1><br>
+    {% if user.photo %}
+    <p ><img src="{{ user.photo.url }}" class="edit_profile_photo">
+    {% else %}
+    <p ><img src="{{ default_image }}" class="edit_profile_photo">
+    {% endif %}
+
+    <a href="{% url 'users:password_change' %}">Сменить пароль</a><br>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-error">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <p ><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}: <br></label>{{ f }}</p>
+    <div class="form-error">{{ f.errors }}</div>
+    {% endfor %}
+    <br>
+    <p ><button type="submit" class="submit_button">Сохранить</button></p>
+</form>
+ 
+{% endblock %}

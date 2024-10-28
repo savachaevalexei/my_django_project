@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="article" style="font-size:1.1em">
+
+{% if bookmarks or sub_categories %}
+
+    {% if bookmarks %}
+    <h1>Избранные статьи:</h1><br>
+    {% for bm in bookmarks %}
+    <p><a href="{{ bm.get_absolute_url }}">{{ bm.title }}</a></p><br>
+    {% endfor %}
+    {%endif%}
+
+        
+    {% if sub_categories %}
+    <h1>Избранные категории:</h1><br>
+    {% for sub_cat in sub_categories %}
+    <p><a href="{{ sub_cat.get_absolute_url }}">{{ sub_cat }}</a></p><br>
+    {% endfor %}
+    {%endif%}
+
+{% else %}
+<h1>Вы ничего не добавили в избранное.</h1>
+{% endif %}
+</div>
+
+{% endblock %}
